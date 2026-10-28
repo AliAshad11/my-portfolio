@@ -1,0 +1,110 @@
+/* =========================================================
+   HERO 3D — scene layer + portrait sizing/depth
+   Loaded only by Hero.jsx; overrides the hero rules in globals.css
+   ========================================================= */
+
+/* ---------- 3D scene behind the hero ---------- */
+.hero3d { isolation: isolate; overflow: hidden; }
+.hero-scene { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.hero-scene canvas { display: block; width: 100% !important; height: 100% !important; }
+.hero-scene-fade {
+  position: absolute; inset: auto 0 0; height: 32%; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+}
+.hero3d .hero-grid { position: relative; z-index: 2; }
+.hero3d .scroll-hint { z-index: 3; }
+
+/* ---------- Portrait: smaller, balanced size ---------- */
+.hero3d .hero-grid { grid-template-columns: 1.15fr 0.85fr; gap: 48px; }
+.hero3d .portrait-wrap {
+  width: clamp(270px, 24vw, 340px);
+  max-width: none;
+  margin: 0 auto;
+  justify-self: center;
+  aspect-ratio: 4 / 5;
+  perspective: 1200px;
+}
+.portrait-float { position: absolute; inset: 0; transform-style: preserve-3d; animation: portraitFloat 7s ease-in-out infinite; }
+@keyframes portraitFloat {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -14px, 0); }
+}
+
+/* image sits a little forward of the frame for real depth */
+.hero3d .portrait-frame { transform: translateZ(0); transform-style: preserve-3d; }
+.hero3d .portrait-img { object-fit: cover; object-position: 50% 12%; transform: scale(1.02); }
+
+/* glow volume far behind the frame */
+.portrait-aura {
+  position: absolute; inset: 6% -14% -10%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(34, 211, 238, 0.35), rgba(139, 92, 246, 0.22) 55%, transparent 75%);
+  filter: blur(30px); transform: translateZ(-140px); pointer-events: none;
+}
+.hero3d .portrait-ring { inset: -6%; opacity: 0.45; filter: blur(42px); transform: translateZ(-90px); }
+
+/* dashed orbit with a travelling light */
+.hero3d .portrait-orbit { inset: -7%; border-radius: 42px; transform: translateZ(-40px); }
+.portrait-orbit span {
+  position: absolute; top: -5px; left: 50%; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--cyan); box-shadow: 0 0 14px 4px var(--cyan);
+  offset-path: inset(0 round 42px); offset-distance: 0%; animation: orbitRun 9s linear infinite;
+}
+@keyframes orbitRun { to { offset-distance: 100%; } }
+
+/* holographic scan line + cursor glare */
+.portrait-scan {
+  position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0.55;
+  background: linear-gradient(to bottom, transparent 0%, rgba(34, 211, 238, 0.28) 49%, rgba(34, 211, 238, 0.55) 50%, transparent 52%);
+  background-size: 100% 220%; animation: scan 5.5s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+}
+@keyframes scan { 0% { background-position: 0 120%; } 100% { background-position: 0 -120%; } }
+.portrait-glare { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: overlay; }
+
+/* glowing platform under the portrait */
+.portrait-base {
+  position: absolute; left: 50%; top: 100%; width: 118%; aspect-ratio: 1;
+  transform: translate(-50%, -50%) translateZ(-30px) rotateX(80deg); transform-style: preserve-3d; pointer-events: none;
+}
+.portrait-base i { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid rgba(34, 211, 238, 0.55); box-shadow: 0 0 30px rgba(34, 211, 238, 0.45), inset 0 0 30px rgba(139, 92, 246, 0.35); }
+.portrait-base i:nth-child(2) { inset: 12%; border-color: rgba(139, 92, 246, 0.6); border-style: dashed; animation: spin 18s linear infinite; }
+.portrait-base i:nth-child(3) { inset: 26%; border-color: rgba(244, 114, 182, 0.5); background: radial-gradient(circle, rgba(34, 211, 238, 0.25), transparent 70%); animation: spin 12s linear infinite reverse; }
+
+/* role pill moves to the top so the code card never covers it */
+.hero3d .portrait-name { top: 16px; left: 16px; bottom: auto; }
+
+/* chips tuned to the smaller frame so they never cover the face */
+.hero3d .chip-1 { top: 16%; left: -22%; }
+.hero3d .chip-2 { top: 44%; right: -24%; }
+.hero3d .chip-3 { bottom: 20%; left: -26%; }
+.hero3d .exp-badge { top: -7%; right: -12%; }
+.hero3d .code-card { bottom: -11%; right: -16%; }
+.hero3d .chip-inner { font-size: 0.78rem; padding: 9px 13px; }
+.hero3d .chip-inner pre { font-size: 0.7rem; }
+
+/* ---------- Large desktop ---------- */
+@media (min-width: 1440px) {
+  .hero3d .portrait-wrap { width: 360px; }
+}
+
+/* ---------- Tablet / mobile (single column) ---------- */
+@media (max-width: 960px) {
+  .hero3d .hero-grid { grid-template-columns: 1fr; gap: 64px; }
+  .hero3d .portrait-wrap { order: -1; width: min(300px, 64vw); margin: 10px auto 0; }
+  .hero3d .chip-1 { left: -16%; }
+  .hero3d .chip-2 { right: -16%; }
+  .hero3d .chip-3 { left: -18%; }
+  .hero3d .code-card { right: -10%; }
+  .hero-scene-fade { height: 22%; }
+}
+@media (max-width: 720px) {
+  .hero3d .portrait-wrap { width: min(250px, 66vw); }
+  .hero3d .chip-2, .hero3d .chip-3 { display: none; }
+  .hero3d .chip-1 { top: 4%; left: -12%; }
+  .hero3d .exp-badge { top: -6%; right: -8%; }
+  .hero3d .code-card { bottom: -14%; right: -10%; }
+  .hero3d .chip-inner pre { font-size: 0.62rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-float, .portrait-scan, .portrait-orbit span { animation: none !important; }
+}
